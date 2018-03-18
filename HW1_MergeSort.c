@@ -1,21 +1,10 @@
 #include<stdio.h>
 
-void merge(int arr[], int head, int mid, int tail){
-	int a_length = mid - head + 1;
-	int b_length = tail - (mid + 1) + 1;
-	int *a = malloc(a_length * sizeof(int));
-	int *b = malloc(b_length * sizeof(int));
-
-	for (int i = 0; i < a_length; i++){
-		a[i] = arr[head + i];
-	}
-	for (int j = 0; j < b_length; j++){
-		b[j] = arr[mid + 1 + j];
-	}
-
-	int i = 0, j = 0, k = head;
-	
-	while (i < a_length && j < b_length){
+void merge(int arr[], int a[], int b[], int length){
+	int length_a = length / 2;
+	int length_b = length - length_a;
+	int i = 0, j = 0, k = 0;
+	while (i < length_a && j < length_b){
 		if (a[i] < b[j]){
 			arr[k] = a[i];
 			i++;
@@ -25,30 +14,39 @@ void merge(int arr[], int head, int mid, int tail){
 			j++;
 		}
 		k++;
-	}
-
-	while (i < a_length){
+	} // choose the smaller key from the first index of a and b  
+	while (i < length_a){
 		arr[k] = a[i];
+		k++;
 		i++;
-		k++;
 	}
-
-	while (j < b_length){
+	while (j < length_b){
 		arr[k] = b[j];
-		j++;
 		k++;
+		j++;
 	}
-
-	free(a);
-	free(b);
 }
 
-void merge_sort(int arr[], int head, int tail){
-	if (head < tail){
-		int mid = (head + tail) / 2;
-		merge_sort(arr, head, mid);
-		merge_sort(arr, mid + 1, tail);
-		merge(arr, head, mid, tail);
+void merge_sort(int arr[], int length){
+	int mid = length / 2;
+	int *a;
+	int *b;
+
+	if (length < 2){
+		return;
+	} // stop recursion
+	else{
+		a = malloc(mid * sizeof(int));
+		b = malloc((length - mid) * sizeof(int));
+		for (int i = 0; i < mid; i++){
+			a[i] = arr[i];
+		}
+		for (int i = mid; i < length; i++){
+			b[i - mid] = arr[i];
+		} // seperate arr into two part
+		merge_sort(a, mid);
+		merge_sort(b, length - mid); // go into recursion
+		merge(arr, a, b, length);
 	}
 }
 
@@ -71,11 +69,7 @@ int main(void){
 		fscanf(fPtr, "%d", &tmp[i]);
 	} // read keys into tmp array
 	
-	merge_sort(tmp, 0, numberOfKeys - 1);
-
-	for (int i = 0; i < numberOfKeys; i++){
-		printf("%d ", tmp[i]);
-	}
+	merge_sort(tmp, numberOfKeys);
 
 	fPtr = fopen("output.txt", "w");
 	
